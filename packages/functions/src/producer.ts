@@ -5,13 +5,25 @@ import { Queue } from "sst/node/queue";
 const sqs = new SQSClient({});
 
 export async function handler(event: SQSEvent) {
-  const command = new SendMessageCommand({
-    QueueUrl: Queue.queue.queueUrl,
-    MessageBody: "Hello from the producer lambda!",
-  });
-
   let i = 1;
-  while (i < 1000) {
+  while (i < 10) {
+    const accountId = "id-" + Math.random() * 1000000;
+    const sprn = "sprn-" + Math.random() * 1000000;
+
+    const command = new SendMessageCommand({
+      QueueUrl: Queue.queue.queueUrl,
+      MessageBody: JSON.stringify({
+        accountId: accountId,
+        sprn: sprn,
+      }),
+    });
+
+    console.log("%j", {
+      source: "PRODUCER_LAMBDA",
+      accountId: accountId,
+      sprn: sprn,
+    });
+
     sqs.send(command);
     i++;
   }
